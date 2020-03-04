@@ -1,0 +1,65 @@
+tosca_definitions_version: cloudify_dsl_1_3
+
+imports:
+  - http://www.getcloudify.org/spec/cloudify/4.3/types.yaml
+  - plugin:compunet_plugin
+
+description: |
+  an example blueprint for computing power network.
+
+inputs:
+  specific:
+    description: Specific of Computing Power Network.
+    default: low-delay
+  condition:
+    description: Details conditions to descript specific
+    default: max-delay 100
+
+data_types:
+  cloudify.compunet.types.configuration:
+    description: Configuration for Computeing Power Network.
+    properties:
+      resource:
+        description: Type of virtual resource.
+        type: string
+        required: true
+      specific:
+        description: Specific of Computing Power Network.
+        type: string
+        required: false
+      condition:
+        description: Details conditions to descript specific.
+        type: string
+        required: false  
+ 
+node_types:
+  cloudify.compunet.nodes.KubernetesPool:
+    derived_from: cloudify.nodes.Root
+    properties:
+      configure: 
+        type: cloudify.compunet.types.configuration
+        default: 
+          resource: kubernetes
+          specific: ''
+          condition: ''
+    interfaces:
+      cloudify.interfaces.lifecycle:
+        create:
+          implementation: compunet.pool.tasks.create
+        delete:
+          implementation: compunet.pool.tasks.delete          
+  cloudify.compunet.nodes.OpenstackPool:
+    derived_from: cloudify.nodes.Root
+    properties:
+      configure: 
+        type: cloudify.compunet.types.configuration
+        default: 
+          resource: openstack
+          specific: ''
+          condition: ''
+    interfaces:
+      cloudify.interfaces.lifecycle:
+        create:
+          implementation: compunet.pool.tasks.create
+        delete:
+          implementation: compunet.pool.tasks.delete
